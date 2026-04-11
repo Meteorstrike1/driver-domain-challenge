@@ -1,0 +1,71 @@
+---
+openapi: 3.0.1
+info:
+  title: API V1
+  version: v1
+paths:
+  "/driver-records":
+    get:
+      summary: Retrieves all driver records
+      tags:
+      - Driver Records
+      responses:
+        '200':
+          description: driver records found
+          content:
+            application/json:
+              examples:
+                example:
+                  value:
+                  - first_names: Test
+                    last_name: Case
+                    date_of_birth: '2001-01-02'
+                    driving_licence_number: CASE0102TEXM
+                    driving_licence_type: full
+  "/driver-records/{driving_licence_number}":
+    get:
+      summary: Retrieves a driver record
+      tags:
+      - Driver Records
+      parameters:
+      - name: driving_licence_number
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: driver record found
+          content:
+            application/json:
+              examples:
+                example:
+                  value:
+                    first_names: Test
+                    last_name: Case
+                    date_of_birth: '2001-01-02'
+                    driving_licence_number: CASE0102TEXM
+                    driving_licence_type: full
+              schema:
+                type: object
+                properties:
+                  first_names:
+                    type: string
+                  last_name:
+                    type: string
+                  date_of_birth:
+                    type: string
+                    format: date
+                  driving_licence_number:
+                    type: string
+                  driving_licence_type:
+                    type: string
+                required:
+                - first_names
+                - last_name
+                - date_of_birth
+                - driving_licence_type
+        '404':
+          description: driver record not found
+servers:
+- url: http://localhost:3000

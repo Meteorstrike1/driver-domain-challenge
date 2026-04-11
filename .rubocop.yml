@@ -1,0 +1,10 @@
+inherit_gem:
+  dvla-lint: '.rubocop.yml'
+
+Rails:
+  Enabled: true
+
+AllCops:
+  TargetRubyVersion: 4.0
+  NewCops: enable
+  SuggestExtensions: false

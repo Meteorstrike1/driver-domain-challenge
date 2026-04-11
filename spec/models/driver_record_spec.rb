@@ -3,7 +3,8 @@ require 'rails_helper'
 RSpec.describe DriverRecord, type: :model do
   subject { described_class }
 
-  let(:valid_record) do {
+  let(:valid_record) do
+    {
       first_names: 'Test',
       last_name: 'Case',
       date_of_birth: Date.new(2001, 1, 2),
@@ -12,7 +13,7 @@ RSpec.describe DriverRecord, type: :model do
   end
   let(:valid_licence_number) { 'CASE0102TEXM' }
 
-  invalid_data = {
+  {
     first_names: ' -',
     last_name: 'aweae',
     date_of_birth: Date.new(2001, 1, 12),
@@ -35,20 +36,19 @@ RSpec.describe DriverRecord, type: :model do
     end
 
     it 'generates a valid record with a valid driving licence number provided' do
-      valid_with_licence = valid_record.merge({driving_licence_number: valid_licence_number})
+      valid_with_licence = valid_record.merge({ driving_licence_number: valid_licence_number })
       driver_record = subject.new(valid_with_licence)
       expect(driver_record.valid?).to eq(true)
     end
 
     it 'fails to generate a valid record with an invalid driving licence number provided' do
-      valid_with_licence = valid_record.merge({driving_licence_number: 'CASE0102TEX'})
+      valid_with_licence = valid_record.merge({ driving_licence_number: 'CASE0102TEX' })
       driver_record = subject.new(valid_with_licence)
       expect(driver_record.valid?).to eq(false)
     end
   end
 
   # TODO: Tests
-  describe '#generate_licence_number' do
-
-  end
+  # describe '#generate_licence_number' do
+  # end
 end

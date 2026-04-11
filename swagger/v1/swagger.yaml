@@ -15,13 +15,48 @@ paths:
           content:
             application/json:
               examples:
-                example:
+                response:
                   value:
-                  - first_names: Test
-                    last_name: Case
-                    date_of_birth: '2001-01-02'
-                    driving_licence_number: CASE0102TEXM
-                    driving_licence_type: full
+                  - driving_licence_number: CASE0507TEAA
+                    first_names: Tench
+                    last_name: Casey
+                    date_of_birth: '1995-05-07'
+                    driving_licence_type: Provisional
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/driver_record"
+    post:
+      summary: Create a driver record
+      tags:
+      - Driver Records
+      parameters: []
+      responses:
+        '201':
+          description: driver record created
+          content:
+            application/json:
+              examples:
+                with_licence_number:
+                  value:
+                    driving_licence_number: GILE1012JUXM
+                    first_names: Julia Suzanne
+                    last_name: Giles
+                    date_of_birth: '2001-10-12'
+                    driving_licence_type: Provisional
+                without_licence_number:
+                  value:
+                    first_names: Julia Suzanne
+                    last_name: Giles
+                    date_of_birth: '2001-10-12'
+                    driving_licence_type: Provisional
+              schema:
+                "$ref": "#/components/schemas/driver_record"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/driver_record"
   "/driver-records/{driving_licence_number}":
     get:
       summary: Retrieves a driver record
@@ -39,33 +74,119 @@ paths:
           content:
             application/json:
               examples:
-                example:
+                response:
                   value:
-                    first_names: Test
-                    last_name: Case
-                    date_of_birth: '2001-01-02'
-                    driving_licence_number: CASE0102TEXM
-                    driving_licence_type: full
+                    driving_licence_number: CASE0507TEAA
+                    first_names: Tench
+                    last_name: Casey
+                    date_of_birth: '1995-05-07'
+                    driving_licence_type: Full
               schema:
-                type: object
-                properties:
-                  first_names:
-                    type: string
-                  last_name:
-                    type: string
-                  date_of_birth:
-                    type: string
-                    format: date
-                  driving_licence_number:
-                    type: string
-                  driving_licence_type:
-                    type: string
-                required:
-                - first_names
-                - last_name
-                - date_of_birth
-                - driving_licence_type
+                "$ref": "#/components/schemas/driver_record"
         '404':
           description: driver record not found
+    put:
+      summary: Updates a driver record
+      tags:
+      - Driver Records
+      parameters:
+      - name: driving_licence_number
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: driver record updated
+          content:
+            application/json:
+              examples:
+                all_possible_fields:
+                  value:
+                    first_names: Trent
+                    last_name: Comet
+                    driving_licence_type: Full
+                just_driving_licence_type:
+                  value:
+                    driving_licence_type: Full
+                just_first_names:
+                  value:
+                    first_names: Trent
+                just_last_name:
+                  value:
+                    last_name: Comet
+              schema:
+                "$ref": "#/components/schemas/driver_record"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_names:
+                  type: string
+                last_name:
+                  type: string
+                driving_licence_type:
+                  type: string
+    delete:
+      summary: Deletes a driver record
+      tags:
+      - Driver Records
+      parameters:
+      - name: driving_licence_number
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: driver record deleted
+          content:
+            application/json:
+              examples:
+                example:
+                  value:
+                    first_names: David
+                    last_name: Parker
+                    date_of_birth: '2005-04-04'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_names:
+                  type: string
+                last_name:
+                  type: string
+                date_of_birth:
+                  type: string
+                  format: date
+              required:
+              - first_names
+              - last_name
+              - date_of_birth
+components:
+  schemas:
+    driver_record:
+      type: object
+      properties:
+        driving_licence_number:
+          type: string
+        first_names:
+          type: string
+        last_name:
+          type: string
+        date_of_birth:
+          type: string
+          format: date
+        driving_licence_type:
+          type: string
+      required:
+      - first_names
+      - last_name
+      - date_of_birth
+      - driving_licence_type
 servers:
 - url: http://localhost:3000

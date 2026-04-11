@@ -30,3 +30,7 @@ WIP
 Use Bruno collection to use the API
 
 Use swagger docs
+Update swagger docs
+```bash
+rake rswag:specs:swaggerize
+```

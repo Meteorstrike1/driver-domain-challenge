@@ -19,7 +19,7 @@ class DriverRecord < ApplicationRecord
 
   # Show only the fields of interest
   def as_json(options = {})
-    super(options.merge(except: %i[id created_at updated_at]))
+    super(options.merge(only: %i[driving_licence_number first_names last_name date_of_birth driving_licence_type]))
   end
 
   # Tries to save to database and retries licence generation if there were conflicts
@@ -40,8 +40,8 @@ class DriverRecord < ApplicationRecord
 
   def record_match?(data_provided)
     data_provided[:first_names] == self.first_names &&
-    data_provided[:last_name] == self.last_name &&
-    data_provided[:date_of_birth] == self.date_of_birth.strftime('%Y-%m-%d')
+      data_provided[:last_name] == self.last_name &&
+      data_provided[:date_of_birth] == self.date_of_birth.strftime('%Y-%m-%d')
   end
 
 private
@@ -53,11 +53,11 @@ private
   def date_of_birth_in_range
     return if self.date_of_birth.blank?
 
-    today = Date.today
+    today = Time.zone.today
     dob = self.date_of_birth
 
     had_birthday = today.month > dob.month || (today.month >= dob.month && today.day > dob.day)
-    age = had_birthday ? today.year - dob.year : today.year - dob.year  - 1
+    age = had_birthday ? today.year - dob.year : today.year - dob.year - 1
     if age < 17 || age > 100
       errors.add(:date_of_birth, message: :invalid)
     end

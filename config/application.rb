@@ -22,6 +22,7 @@ module DriverDomainDemo5
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.1
+    config.time_zone = 'London'
 
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
@@ -40,6 +41,6 @@ module DriverDomainDemo5
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
-    config.middleware.use ActionDispatch::Static, Rails.root.join("public").to_s
+    config.middleware.use ActionDispatch::Static, Rails.public_path.to_s
   end
 end

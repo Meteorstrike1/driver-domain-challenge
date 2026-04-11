@@ -3,7 +3,7 @@ class ApplicationController < ActionController::API
   rescue_from ActiveRecord::RecordNotUnique, with: :conflict
   rescue_from ActionController::ParameterMissing, with: :bad_request
 
-  private
+private
 
   def not_found
     render json: { error: 'Not found' }, status: :not_found

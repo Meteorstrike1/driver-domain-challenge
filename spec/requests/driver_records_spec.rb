@@ -1,22 +1,65 @@
 require 'swagger_helper'
 
 RSpec.describe 'driver_records', type: :request do
-  let(:example_record) { DriverRecord.create!(first_names: 'Test', last_name: 'Case', date_of_birth: Date.new(2001, 10, 12), driving_licence_type: 'full') }
+  let(:example_record) { DriverRecord.create!(driving_licence_number: 'CASE0507TEAA', first_names: 'Tench', last_name: 'Casey', date_of_birth: Date.new(1995, 0o5, 0o7), driving_licence_type: 'Provisional') }
+  let(:example_record_to_delete) { DriverRecord.create!(driving_licence_number: 'PARK0404DASK', first_names: 'David', last_name: 'Parker', date_of_birth: Date.new(2005, 4, 4), driving_licence_type: 'Provisional') }
+  let(:example_create) do
+    {
+      first_names: 'Test',
+      last_name: 'Case',
+      date_of_birth: Date.new(2001, 1, 2),
+      driving_licence_type: 'full',
+    }
+  end
+  let(:example_delete) do
+    {
+      first_names: 'David',
+      last_name: 'Parker',
+      date_of_birth: Date.new(2005, 4, 4),
+    }
+  end
 
   path '/driver-records' do
     get 'Retrieves all driver records' do
       tags 'Driver Records'
       produces 'application/json'
       response '200', 'driver records found' do
-        example 'application/json', :example, [
+        schema type: :array, items: { '$ref' => '#/components/schemas/driver_record' }
+        example 'application/json', :response, [
           {
-            first_names: 'Test',
-            last_name: 'Case',
-            date_of_birth: Date.new(2001, 01, 02),
-            driving_licence_number: 'CASE0102TEXM',
-            driving_licence_type: 'full'
-          }
+            driving_licence_number: 'CASE0507TEAA',
+            first_names: 'Tench',
+            last_name: 'Casey',
+            date_of_birth: Date.new(1995, 0o5, 0o7),
+            driving_licence_type: 'Provisional',
+          },
         ]
+        run_test!
+      end
+    end
+
+    post 'Create a driver record' do
+      tags 'Driver Records'
+      consumes 'application/json'
+      produces 'application/json'
+      parameter name: :driver_record, in: :body, schema: { '$ref' => '#/components/schemas/driver_record' }
+
+      response '201', 'driver record created' do
+        schema '$ref' => '#/components/schemas/driver_record'
+        example 'application/json', :with_licence_number, {
+          driving_licence_number: 'GILE1012JUXM',
+          first_names: 'Julia Suzanne',
+          last_name: 'Giles',
+          date_of_birth: Date.new(2001, 10, 12),
+          driving_licence_type: 'Provisional',
+        }
+        example 'application/json', :without_licence_number, {
+          first_names: 'Julia Suzanne',
+          last_name: 'Giles',
+          date_of_birth: Date.new(2001, 10, 12),
+          driving_licence_type: 'Provisional',
+        }
+        let(:driver_record) { example_create }
         run_test!
       end
     end
@@ -29,21 +72,13 @@ RSpec.describe 'driver_records', type: :request do
       parameter name: 'driving_licence_number', in: :path, type: :string
 
       response '200', 'driver record found' do
-        schema type: :object,
-               properties: {
-                 first_names: { type: :string },
-                 last_name: { type: :string },
-                 date_of_birth: { type: :string, format: :date },
-                 driving_licence_number: { type: :string },
-                 driving_licence_type: { type: :string },
-               },
-               required: %w[first_names last_name date_of_birth driving_licence_type]
-        example 'application/json', :example, {
-          first_names: 'Test',
-          last_name: 'Case',
-          date_of_birth: Date.new(2001, 01, 02),
-          driving_licence_number: 'CASE0102TEXM',
-          driving_licence_type: 'full'
+        schema '$ref' => '#/components/schemas/driver_record'
+        example 'application/json', :response, {
+          driving_licence_number: 'CASE0507TEAA',
+          first_names: 'Tench',
+          last_name: 'Casey',
+          date_of_birth: Date.new(1995, 0o5, 0o7),
+          driving_licence_type: 'Full',
         }
         let(:driving_licence_number) { example_record.driving_licence_number }
         run_test!
@@ -54,8 +89,69 @@ RSpec.describe 'driver_records', type: :request do
         run_test!
       end
     end
+
+    put 'Updates a driver record' do
+      tags 'Driver Records'
+      consumes 'application/json'
+      produces 'application/json'
+      parameter name: 'driving_licence_number', in: :path, type: :string
+      parameter name: :driver_record, in: :body, schema: {
+        type: :object,
+        properties: {
+          first_names: { type: :string },
+          last_name: { type: :string },
+          driving_licence_type: { type: :string },
+        },
+      }
+
+      response '200', 'driver record updated' do
+        schema '$ref' => '#/components/schemas/driver_record'
+        example 'application/json', :all_possible_fields, {
+          first_names: 'Trent',
+          last_name: 'Comet',
+          driving_licence_type: 'Full',
+        }
+        example 'application/json', :just_driving_licence_type, {
+          driving_licence_type: 'Full',
+        }
+        example 'application/json', :just_first_names, {
+          first_names: 'Trent',
+        }
+        example 'application/json', :just_last_name, {
+          last_name: 'Comet',
+        }
+        let(:driving_licence_number) { example_record.driving_licence_number }
+        let(:driver_record) { example_record }
+        run_test!
+      end
+    end
+
+    delete 'Deletes a driver record' do
+      tags 'Driver Records'
+      consumes 'application/json'
+      parameter name: 'driving_licence_number', in: :path, type: :string
+      parameter name: :driver_record, in: :body, schema: {
+        type: :object,
+        properties: {
+          first_names: { type: :string },
+          last_name: { type: :string },
+          date_of_birth: { type: :string, format: :date },
+        },
+        required: %w[first_names last_name date_of_birth],
+      }
+
+      response '204', 'driver record deleted' do
+        example 'application/json', :example, {
+          first_names: 'David',
+          last_name: 'Parker',
+          date_of_birth: Date.new(2005, 4, 4),
+        }
+        let(:driving_licence_number) { example_record_to_delete.driving_licence_number }
+        let(:driver_record) { example_delete }
+        run_test!
+      end
+    end
   end
 end
 
-# TODO: Update for other endpoints
-# request_body_example value: { first_names: 'First names', last_name: 'Last name', date_of_birth: Date.new(2001, 10, 12), driving_licence_number: 'CASE0102TEXM', driving_licence_type: 'full' }, name: 'basic', summary: 'Request example'
+# TODO: Add more error responses etc

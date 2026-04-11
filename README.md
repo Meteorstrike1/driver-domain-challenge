@@ -28,9 +28,17 @@ WIP
 
 
 Use Bruno collection to use the API
+Download if you don't have
+https://www.usebruno.com/downloads
 
 Use swagger docs
 Update swagger docs
 ```bash
 rake rswag:specs:swaggerize
 ```
+
+TODO add resources here, rswag docs etc
+
+## Useful resources
+- [Rswag](https://github.com/rswag/rswag)
+- [Swagger docs](https://swagger.io/docs/specification/v3_0/about/)

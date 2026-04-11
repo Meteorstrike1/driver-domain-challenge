@@ -1,0 +1,23 @@
+info:
+  name: delete a record
+  type: http
+  seq: 5
+
+http:
+  method: DELETE
+  url: http://127.0.0.1:3000/driver-records/JONE0804BOBD
+  body:
+    type: json
+    data: |-
+      {
+        "first_names": "Bob",
+        "last_name": "Jones",
+        "date_of_birth": "2001-08-04"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

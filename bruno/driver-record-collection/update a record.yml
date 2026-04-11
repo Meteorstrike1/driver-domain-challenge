@@ -1,0 +1,23 @@
+info:
+  name: update a record
+  type: http
+  seq: 2
+
+http:
+  method: PUT
+  url: http://127.0.0.1:3000/driver-records/MORR0229HEOW
+  body:
+    type: json
+    data: |-
+      {
+        "first_names": "Helen",
+        "last_name": "Powell",
+        "driving_licence_type": "Full"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

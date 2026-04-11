@@ -1,0 +1,24 @@
+info:
+  name: create a record
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://127.0.0.1:3000/driver-records
+  body:
+    type: json
+    data: |-
+      {
+        "first_names": "Michael",
+        "last_name": "Young-Davies",
+        "date_of_birth": "1987-6-30",
+        "driving_licence_type": "full"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

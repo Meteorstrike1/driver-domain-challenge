@@ -3,9 +3,13 @@ require 'simplecov_json_formatter'
 
 SimpleCov.formatters = SimpleCov::Formatter::MultiFormatter.new([SimpleCov::Formatter::JSONFormatter, SimpleCov::Formatter::HTMLFormatter])
 SimpleCov.minimum_coverage 10
-SimpleCov.start 'rails' do
-  add_group 'Models', 'app/models'
-  add_filter %w[spec/]
+
+# Ignore coverage when generating swagger docs
+unless RSpec.configuration.dry_run?
+  SimpleCov.start 'rails' do
+    add_group 'Models', 'app/models'
+    add_filter %w[spec/]
+  end
 end
 
 RSpec.configure do |config|

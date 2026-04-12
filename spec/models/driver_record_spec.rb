@@ -160,20 +160,20 @@ RSpec.describe DriverRecord, type: :model do
     end
 
     it 'generates a valid record with a valid driving licence number provided' do
-      valid_with_licence = valid_record.merge({ driving_licence_number: valid_licence_number })
+      valid_with_licence = valid_record.merge(driving_licence_number: valid_licence_number)
       driver_record = subject.new(valid_with_licence)
       expect(driver_record.valid?).to eq(true)
     end
 
     it 'fails to generate a valid record with an invalid driving licence number provided' do
-      valid_with_licence = valid_record.merge({ driving_licence_number: 'CASE0102TEX' })
+      valid_with_licence = valid_record.merge(driving_licence_number: 'CASE0102TEX')
       driver_record = subject.new(valid_with_licence)
       expect(driver_record.valid?).to eq(false)
     end
 
     it 'raises an error if record with same number already exists' do
-      subject.create!(valid_record.merge({ driving_licence_number: valid_licence_number }))
-      driver_record_with_same_licence = subject.new(valid_record.merge({ driving_licence_number: valid_licence_number }))
+      subject.create!(valid_record.merge(driving_licence_number: valid_licence_number))
+      driver_record_with_same_licence = subject.new(valid_record.merge(driving_licence_number: valid_licence_number))
       expect(driver_record_with_same_licence.valid?).to eq(false)
       expect { driver_record_with_same_licence.save! }.to raise_error(ActiveRecord::RecordInvalid).with_message('Validation failed: Driving licence number has already been taken')
     end
@@ -303,7 +303,7 @@ RSpec.describe DriverRecord, type: :model do
     end
 
     it 'will retry if the generated licence number is already taken' do
-      subject.create!(valid_record.merge({ driving_licence_number: valid_licence_number }))
+      subject.create!(valid_record.merge(driving_licence_number: valid_licence_number))
       driver_record = subject.new(valid_record)
       allow(driver_record).to receive(:generate_licence_number).and_return('CASE0102TEXM')
       expect { driver_record.save! }.to raise_error(ActiveRecord::RecordInvalid).with_message('Validation failed: Driving licence number has already been taken')

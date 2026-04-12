@@ -1,7 +1,7 @@
 require 'swagger_helper'
 
 RSpec.describe 'driver_records', type: :request do
-  let(:example_record) { DriverRecord.create!(driving_licence_number: 'CASE0507TEAA', first_names: 'Tench', last_name: 'Casey', date_of_birth: Date.new(1995, 0o5, 0o7), driving_licence_type: 'Provisional') }
+  let(:example_record) { DriverRecord.create!(driving_licence_number: 'CASE0507TEAA', first_names: 'Tench', last_name: 'Casey', date_of_birth: Date.new(1995, 5, 7), driving_licence_type: 'Provisional') }
   let(:example_record_to_delete) { DriverRecord.create!(driving_licence_number: 'PARK0404DASK', first_names: 'David', last_name: 'Parker', date_of_birth: Date.new(2005, 4, 4), driving_licence_type: 'Provisional') }
   let(:example_create) do
     {
@@ -60,6 +60,24 @@ RSpec.describe 'driver_records', type: :request do
           driving_licence_type: 'Provisional',
         }
         let(:driver_record) { example_create }
+        run_test!
+      end
+
+      response '400', 'bad request body' do
+        let(:driver_record) { {} }
+        run_test!
+      end
+
+      response '409', 'driver licence number conflict' do
+        before do
+          allow_any_instance_of(DriverRecord).to receive(:save!).and_raise(ActiveRecord::RecordNotUnique)
+        end
+        let(:driver_record) { example_create.merge(driving_licence_number: 'CASE0507TEAA') }
+        run_test!
+      end
+
+      response '422', 'record invalid' do
+        let(:driver_record) { example_create.merge(first_names: '1234') }
         run_test!
       end
     end
@@ -124,6 +142,30 @@ RSpec.describe 'driver_records', type: :request do
         let(:driver_record) { example_record }
         run_test!
       end
+
+      response '400', 'parameter missing' do
+        let(:driving_licence_number) { example_record.driving_licence_number }
+        let(:driver_record) { {} }
+        run_test!
+      end
+
+      response '404', 'driver record not found' do
+        let(:driving_licence_number) { 'NOTFOUND' }
+        let(:driver_record) { example_record }
+        run_test!
+      end
+
+      response '422', 'no permitted fields provided' do
+        let(:driving_licence_number) { example_record.driving_licence_number }
+        let(:driver_record) { { date_of_birth: Date.new(1995, 5, 7) } }
+        run_test!
+      end
+
+      response '422', 'invalid data' do
+        let(:driving_licence_number) { example_record.driving_licence_number }
+        let(:driver_record) { { first_names: '123', last_name: '456', driving_licence_type: 'Learner' } }
+        run_test!
+      end
     end
 
     delete 'Deletes a driver record' do
@@ -150,8 +192,24 @@ RSpec.describe 'driver_records', type: :request do
         let(:driver_record) { example_delete }
         run_test!
       end
+
+      response '400', 'parameter missing' do
+        let(:driving_licence_number) { example_record_to_delete.driving_licence_number }
+        let(:driver_record) { nil }
+        run_test!
+      end
+
+      response '404', 'driver record not found' do
+        let(:driving_licence_number) { 'NOTFOUND' }
+        let(:driver_record) { example_delete }
+        run_test!
+      end
+
+      response '409', 'driver record does not match' do
+        let(:driving_licence_number) { example_record_to_delete.driving_licence_number }
+        let(:driver_record) { example_delete.merge(first_names: 'Paul') }
+        run_test!
+      end
     end
   end
 end
-
-# TODO: Add more error responses etc

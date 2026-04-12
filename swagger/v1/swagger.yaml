@@ -52,6 +52,12 @@ paths:
                     driving_licence_type: Provisional
               schema:
                 "$ref": "#/components/schemas/driver_record"
+        '400':
+          description: bad request body
+        '409':
+          description: driver licence number conflict
+        '422':
+          description: record invalid
       requestBody:
         content:
           application/json:
@@ -117,6 +123,12 @@ paths:
                     last_name: Comet
               schema:
                 "$ref": "#/components/schemas/driver_record"
+        '400':
+          description: parameter missing
+        '404':
+          description: driver record not found
+        '422':
+          description: invalid data
       requestBody:
         content:
           application/json:
@@ -150,6 +162,12 @@ paths:
                     first_names: David
                     last_name: Parker
                     date_of_birth: '2005-04-04'
+        '400':
+          description: parameter missing
+        '404':
+          description: driver record not found
+        '409':
+          description: driver record does not match
       requestBody:
         content:
           application/json:

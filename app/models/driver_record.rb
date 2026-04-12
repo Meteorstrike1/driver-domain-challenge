@@ -56,7 +56,7 @@ private
     today = Time.zone.today
     dob = self.date_of_birth
 
-    had_birthday = today.month > dob.month || (today.month >= dob.month && today.day > dob.day)
+    had_birthday = today.month > dob.month || (today.month >= dob.month && today.day >= dob.day)
     age = had_birthday ? today.year - dob.year : today.year - dob.year - 1
     if age < 17 || age > 100
       errors.add(:date_of_birth, message: :invalid)
@@ -78,7 +78,7 @@ private
   def extract_letters(string, digits)
     return unless string.is_a?(String) && digits.is_a?(Integer)
 
-    # This assumes the validation only let alpha characters in otherwise
+    # This assumes the validation only let alpha characters in otherwise (it could generate an invalid DLN if not but it would hopefully fail on the licence regex check)
     letters = string.delete("' -")
     first_chars = letters.chars.first(digits)
     length = first_chars.length

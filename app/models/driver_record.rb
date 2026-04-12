@@ -22,7 +22,7 @@ class DriverRecord < ApplicationRecord
     super(options.merge(only: %i[driving_licence_number first_names last_name date_of_birth driving_licence_type]))
   end
 
-  # Tries to save to database and retries licence generation if there were conflicts
+  # Tries to save to database and retries licence generation if there were conflicts (would only occur if 2 identical numbers passed validation before being saved to database)
   def save_with_retry(licence_provided)
     retries = 0
     begin
@@ -33,7 +33,6 @@ class DriverRecord < ApplicationRecord
         self.driving_licence_number = nil
         retry
       end
-      Rails.logger.info { "Attempt #{retries} failed to generate unique driving licence number" }
       raise e
     end
   end
@@ -47,7 +46,7 @@ class DriverRecord < ApplicationRecord
 private
 
   def set_licence_number
-    self.driving_licence_number ||= generate_licence_number
+    self.driving_licence_number ||= attempt_unique_licence_number
   end
 
   def date_of_birth_in_range
@@ -63,6 +62,18 @@ private
     end
   end
 
+  # Tries up to 4 times to generate a unique licence number
+  def attempt_unique_licence_number
+    licence_number = generate_licence_number
+    3.times do |i|
+      break unless DriverRecord.exists?(driving_licence_number: licence_number)
+
+      Rails.logger.info { "Retrying after attempt #{i + 1} failed to generate unique driving licence number" }
+      licence_number = generate_licence_number
+    end
+    licence_number
+  end
+
   def generate_licence_number
     return if self.date_of_birth.blank?
 
@@ -71,7 +82,7 @@ private
     day = self.date_of_birth.strftime('%d')
     first_names_chars = extract_letters(self.first_names, 2)
     random_letters = ('A'..'Z').to_a.sample(2).join
-    "#{last_name_chars}#{month}#{day}#{first_names_chars}#{random_letters}"
+    "#{last_name_chars}#{month}#{day}#{first_names_chars}#{random_letters}".upcase
   end
 
   # Takes required number of first digits from a name, pads if less than required

@@ -6,6 +6,41 @@ RSpec.describe DriverRecord, type: :model do
   let(:valid_record) { { first_names: 'Test', last_name: 'Case', date_of_birth: Date.new(2001, 1, 2), driving_licence_type: 'Full' } }
   let(:valid_licence_number) { 'CASE0102TEXM' }
 
+  describe '#record_match?' do
+    it 'matches the record' do
+      driver_record = subject.create!(valid_record)
+      data_provided = {
+        first_names: 'Test',
+        last_name: 'Case',
+        date_of_birth: Date.new(2001, 1, 2).strftime('%Y-%m-%d'),
+      }
+      expect(driver_record.record_match?(data_provided)).to eq(true)
+    end
+
+    it 'does not match the record' do
+      driver_record = subject.create!(valid_record)
+      data_provided = {
+        first_names: 'Nest',
+        last_name: 'Case',
+        date_of_birth: Date.new(2001, 1, 2).strftime('%Y-%m-%d'),
+      }
+      expect(driver_record.record_match?(data_provided)).to eq(false)
+    end
+  end
+
+  describe '#save_with_retry' do
+    it 'will save a valid record where licence number is not provided' do
+      driver_record = subject.new(valid_record)
+      expect { driver_record.save_with_retry(false) }.to_not raise_error
+    end
+
+    it 'will save a valid record where licence number is provided' do
+      driver_record = subject.new(valid_record)
+      driver_record.driving_licence_number = valid_licence_number
+      expect { driver_record.save_with_retry(true) }.to_not raise_error
+    end
+  end
+
   context 'first names' do
     it 'generates a valid record when contains only alphabetic characters' do
       driver_record = subject.new(valid_record)
@@ -137,7 +172,6 @@ RSpec.describe DriverRecord, type: :model do
     end
 
     it 'raises an error if record with same number already exists' do
-      # Commit record to the database
       subject.create!(valid_record.merge({ driving_licence_number: valid_licence_number }))
       driver_record_with_same_licence = subject.new(valid_record.merge({ driving_licence_number: valid_licence_number }))
       expect(driver_record_with_same_licence.valid?).to eq(false)
@@ -222,30 +256,8 @@ RSpec.describe DriverRecord, type: :model do
     end
   end
 
-  describe '#record_match?' do
-    it 'matches the record' do
-      driver_record = subject.create!(valid_record)
-      data_provided = {
-        first_names: 'Test',
-        last_name: 'Case',
-        date_of_birth: Date.new(2001, 1, 2).strftime('%Y-%m-%d'),
-      }
-      expect(driver_record.record_match?(data_provided)).to eq(true)
-    end
-
-    it 'does not match the record' do
-      driver_record = subject.create!(valid_record)
-      data_provided = {
-        first_names: 'Nest',
-        last_name: 'Case',
-        date_of_birth: Date.new(2001, 1, 2).strftime('%Y-%m-%d'),
-      }
-      expect(driver_record.record_match?(data_provided)).to eq(false)
-    end
-  end
-
   context 'driving licence number generation' do
-    it "generates a valid number when none is provided using user's data" do
+    it "generates a valid number when none is provided using person's data" do
       driver_record = subject.create!(valid_record)
       expect(driver_record.driving_licence_number).to match(DriverRecord::LICENCE_REGEX)
       expect(driver_record.driving_licence_number).to start_with('CASE0102TE')
@@ -288,6 +300,14 @@ RSpec.describe DriverRecord, type: :model do
       driver_record.save!
       expect(driver_record.driving_licence_number[4..5]).to eq('11')
       expect(driver_record.driving_licence_number[6..7]).to eq('28')
+    end
+
+    it 'will retry if the generated licence number is already taken' do
+      subject.create!(valid_record.merge({ driving_licence_number: valid_licence_number }))
+      driver_record = subject.new(valid_record)
+      allow(driver_record).to receive(:generate_licence_number).and_return('CASE0102TEXM')
+      expect { driver_record.save! }.to raise_error(ActiveRecord::RecordInvalid).with_message('Validation failed: Driving licence number has already been taken')
+      expect(driver_record).to have_received(:generate_licence_number).exactly(4).times
     end
   end
 end

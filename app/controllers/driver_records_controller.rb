@@ -1,19 +1,19 @@
 class DriverRecordsController < ApplicationController
   before_action :set_driver_record, only: %i[show update destroy]
 
-  # GET /driver_records
+  # GET /driver-records
   def index
     @driver_records = DriverRecord.all
 
     render json: @driver_records
   end
 
-  # GET /driver_records/CASE0102TEXM
+  # GET /driver-records/CASE0102TEXM
   def show
     render json: @driver_record
   end
 
-  # POST /driver_records
+  # POST /driver-records
   def create
     @driver_record = DriverRecord.new(driver_record_params)
     @driver_record.save_with_retry(params[:driver_record][:driving_licence_number].present?)
@@ -22,7 +22,7 @@ class DriverRecordsController < ApplicationController
     render json: @driver_record.errors, status: :unprocessable_content
   end
 
-  # PATCH/PUT /driver_records/CASE0102TEXM
+  # PATCH/PUT /driver-records/CASE0102TEXM
   def update
     permitted = params.require(:driver_record).permit(:first_names, :last_name, :driving_licence_type)
 
@@ -36,7 +36,7 @@ class DriverRecordsController < ApplicationController
     end
   end
 
-  # DELETE /driver_records/CASE0102TEXM
+  # DELETE /driver-records/CASE0102TEXM
   def destroy
     required_keys = %i[first_names last_name date_of_birth]
     required = params.expect(:first_names, :last_name, :date_of_birth)

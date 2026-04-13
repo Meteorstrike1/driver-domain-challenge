@@ -1,0 +1,10 @@
+services:
+  driver_domain_server:
+    container_name: driver_domain_server
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - BINDING=0.0.0.0

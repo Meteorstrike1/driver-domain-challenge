@@ -51,7 +51,9 @@ paths:
                     date_of_birth: '2001-10-12'
                     driving_licence_type: Provisional
               schema:
-                "$ref": "#/components/schemas/driver_record"
+                oneOf:
+                - "$ref": "#/components/schemas/driver_record"
+                - "$ref": "#/components/schemas/driver_record_without_driving_licence_number"
         '400':
           description: bad request body
         '409':
@@ -62,7 +64,9 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/driver_record"
+              oneOf:
+              - "$ref": "#/components/schemas/driver_record"
+              - "$ref": "#/components/schemas/driver_record_without_driving_licence_number"
   "/driver-records/{driving_licence_number}":
     get:
       summary: Retrieves a driver record
@@ -71,6 +75,7 @@ paths:
       parameters:
       - name: driving_licence_number
         in: path
+        example: CASE0507TEAA
         required: true
         schema:
           type: string
@@ -98,6 +103,7 @@ paths:
       parameters:
       - name: driving_licence_number
         in: path
+        example: CASE0507TEAA
         required: true
         schema:
           type: string
@@ -137,10 +143,13 @@ paths:
               properties:
                 first_names:
                   type: string
+                  example: Trent
                 last_name:
                   type: string
+                  example: Comet
                 driving_licence_type:
                   type: string
+                  example: Full
     delete:
       summary: Deletes a driver record
       tags:
@@ -148,6 +157,7 @@ paths:
       parameters:
       - name: driving_licence_number
         in: path
+        example: PARK0404DASK
         required: true
         schema:
           type: string
@@ -176,11 +186,14 @@ paths:
               properties:
                 first_names:
                   type: string
+                  example: David
                 last_name:
                   type: string
+                  example: Parker
                 date_of_birth:
                   type: string
                   format: date
+                  example: '2005-04-04'
               required:
               - first_names
               - last_name
@@ -192,19 +205,58 @@ components:
       properties:
         driving_licence_number:
           type: string
+          example: JONE1012FRIS
         first_names:
           type: string
+          minLength: 1
+          maxLength: 32
+          example: Fred
         last_name:
           type: string
+          minLength: 1
+          maxLength: 32
+          example: Jones
         date_of_birth:
           type: string
           format: date
+          example: '1999-10-12'
         driving_licence_type:
           type: string
+          enum:
+          - Full
+          - Provisional
       required:
       - first_names
       - last_name
       - date_of_birth
       - driving_licence_type
+    driver_record_without_driving_licence_number:
+      type: object
+      properties:
+        first_names:
+          type: string
+          minLength: 1
+          maxLength: 32
+          example: Fred
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 32
+          example: Jones
+        date_of_birth:
+          type: string
+          format: date
+          example: '1999-10-12'
+        driving_licence_type:
+          type: string
+          enum:
+          - Full
+          - Provisional
+      required:
+      - first_names
+      - last_name
+      - date_of_birth
+      - driving_licence_type
+      additionalProperties: false
 servers:
 - url: http://localhost:3000

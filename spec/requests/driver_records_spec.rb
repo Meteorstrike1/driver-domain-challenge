@@ -42,10 +42,15 @@ RSpec.describe 'driver_records', type: :request do
       tags 'Driver Records'
       consumes 'application/json'
       produces 'application/json'
-      parameter name: :driver_record, in: :body, schema: { '$ref' => '#/components/schemas/driver_record' }
+      parameter name: :driver_record, in: :body, schema: {
+        oneOf: [
+          { '$ref' => '#/components/schemas/driver_record' },
+          { '$ref' => '#/components/schemas/driver_record_without_driving_licence_number' },
+        ],
+      }
 
       response '201', 'driver record created' do
-        schema '$ref' => '#/components/schemas/driver_record'
+        schema oneOf: [{ '$ref' => '#/components/schemas/driver_record' }, { '$ref' => '#/components/schemas/driver_record_without_driving_licence_number' }]
         example 'application/json', :with_licence_number, {
           driving_licence_number: 'GILE1012JUXM',
           first_names: 'Julia Suzanne',
@@ -87,7 +92,7 @@ RSpec.describe 'driver_records', type: :request do
     get 'Retrieves a driver record' do
       tags 'Driver Records'
       produces 'application/json'
-      parameter name: 'driving_licence_number', in: :path, type: :string
+      parameter name: 'driving_licence_number', in: :path, example: 'CASE0507TEAA', type: :string
 
       response '200', 'driver record found' do
         schema '$ref' => '#/components/schemas/driver_record'
@@ -112,13 +117,13 @@ RSpec.describe 'driver_records', type: :request do
       tags 'Driver Records'
       consumes 'application/json'
       produces 'application/json'
-      parameter name: 'driving_licence_number', in: :path, type: :string
+      parameter name: 'driving_licence_number', in: :path, example: 'CASE0507TEAA', type: :string
       parameter name: :driver_record, in: :body, schema: {
         type: :object,
         properties: {
-          first_names: { type: :string },
-          last_name: { type: :string },
-          driving_licence_type: { type: :string },
+          first_names: { type: :string, example: 'Trent' },
+          last_name: { type: :string, example: 'Comet' },
+          driving_licence_type: { type: :string, example: 'Full' },
         },
       }
 
@@ -171,13 +176,13 @@ RSpec.describe 'driver_records', type: :request do
     delete 'Deletes a driver record' do
       tags 'Driver Records'
       consumes 'application/json'
-      parameter name: 'driving_licence_number', in: :path, type: :string
+      parameter name: 'driving_licence_number', in: :path, example: 'PARK0404DASK', type: :string
       parameter name: :driver_record, in: :body, schema: {
         type: :object,
         properties: {
-          first_names: { type: :string },
-          last_name: { type: :string },
-          date_of_birth: { type: :string, format: :date },
+          first_names: { type: :string, example: 'David' },
+          last_name: { type: :string, example: 'Parker' },
+          date_of_birth: { type: :string, format: :date, example: '2005-04-04' },
         },
         required: %w[first_names last_name date_of_birth],
       }

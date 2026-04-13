@@ -30,7 +30,7 @@ RSpec.describe 'driver_records', type: :request do
             driving_licence_number: 'CASE0507TEAA',
             first_names: 'Tench',
             last_name: 'Casey',
-            date_of_birth: Date.new(1995, 0o5, 0o7),
+            date_of_birth: Date.new(1995, 5, 7),
             driving_licence_type: 'Provisional',
           },
         ]
@@ -100,7 +100,7 @@ RSpec.describe 'driver_records', type: :request do
           driving_licence_number: 'CASE0507TEAA',
           first_names: 'Tench',
           last_name: 'Casey',
-          date_of_birth: Date.new(1995, 0o5, 0o7),
+          date_of_birth: Date.new(1995, 5, 7),
           driving_licence_type: 'Full',
         }
         let(:driving_licence_number) { example_record.driving_licence_number }
